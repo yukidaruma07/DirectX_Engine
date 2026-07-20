@@ -7,6 +7,7 @@
 #include <vector>
 #include "fbxsdk.h"
 #include "Texture.h"
+#include <unordered_map>
 #pragma comment(lib, "LibFbxSDK-MD.lib")
 #pragma comment(lib, "LibXml2-MD.lib")
 #pragma comment(lib, "zlib-MD.lib")
@@ -26,6 +27,19 @@ struct MATERIAL {
 	DirectX::XMFLOAT4 ambient;
 	DirectX::XMFLOAT4 specular;
 	float shininess;
+};
+
+struct Bone {
+	DirectX::XMMATRIX bindPose = {};
+	DirectX::XMMATRIX newPose = {};
+	DirectX::XMMATRIX diffPose = {};
+};
+
+struct Weight {
+	DirectX::XMFLOAT3 posOrigin = {};
+	//DirectX::XMFLOAT3 normalOrigin = {};
+	std::vector<int> boneIndex;
+	std::vector<float> boneWeight;
 };
 
 /// <summary>
@@ -54,6 +68,13 @@ private:
 	std::vector<MATERIAL> materials_; //マテリアルの配列データ
 	std::vector<Vertex> vertices_; //頂点の配列データ
 	std::vector<FbxCluster*> cluster_;
+
+	std::vector<Bone> boneList;
+	std::unordered_map<std::string, Bone*> boneMap;
+	std::vector<Weight> weightList;
+
+	float nowFrame, animSpeed;
+	int startFrame, endFrame;
 public:
 	DirectX::XMMATRIX world_;
 

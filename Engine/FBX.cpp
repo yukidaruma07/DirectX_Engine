@@ -31,6 +31,9 @@ FBX::FBX(const std::string fName, FBXLoadOption fbxOption)
 	indexBuffer_.clear();
 	pVertexBuffer_ = nullptr;
 	vertices_.clear();
+
+	nowFrame = 0, animSpeed = 1.0f;
+	startFrame = 0, endFrame = 0;
 }
 
 FBX::~FBX() {
@@ -202,6 +205,67 @@ void FBX::InitSkeleton(fbxsdk::FbxMesh* mesh) {
 
 	for (int i = 0; i < boneCount_; i++) {
 		cluster_.push_back(pSkinInfo_->GetCluster(i));
+	}
+
+	weightList.resize(vertexCount_);
+	for (DWORD i = 0; i < vertexCount_; i++)
+	{
+		weightList[i].posOrigin = vertices_[i].postion;
+		//weightList[i].normalOrigin = vertices_[i].normal;
+		weightList[i].boneIndex.resize(boneCount_);
+		weightList[i].boneWeight.resize(boneCount_);
+		for (int j = 0; j < boneCount_; j++)
+		{
+			weightList[i].boneIndex[j] = -1;
+			weightList[i].boneWeight[j] = 0.0f;
+		}
+	}
+
+	for (int i = 0; i < boneCount_; i++)
+	{
+		int numIndex = cluster_[i]->GetControlPointIndicesCount();   //このボーンに影響を受ける頂点数
+		int* piIndex = cluster_[i]->GetControlPointIndices();       //ボーン/ウェイト情報の番号
+		double* pdWeight = cluster_[i]->GetControlPointWeights();     //頂点ごとのウェイト情報
+
+		for (int k = 0; k < numIndex; k++)
+		{
+			for (int m = 0; m < 4; m++)
+			{
+				if (m >= boneCount_)
+					break;
+
+				if (pdWeight[k] > weightList[piIndex[k]].boneWeight[m])
+				{
+					for (int n = boneCount_ - 1; n > m; n--)
+					{
+						weightList[piIndex[k]].boneIndex[n] = weightList[piIndex[k]].boneIndex[n - 1];
+						weightList[piIndex[k]].boneWeight[n] = weightList[piIndex[k]].boneWeight[n - 1];
+					}
+					weightList[piIndex[k]].boneIndex[m] = i;
+					weightList[piIndex[k]].boneWeight[m] = (float)pdWeight[k];
+					break;
+				}
+			}
+
+		}
+	}
+
+	boneList.resize(boneCount_);
+	for (int i = 0; i < boneCount_; i++)
+	{
+		FbxAMatrix  matrix;
+		cluster_[i]->GetTransformLinkMatrix(matrix);
+
+		XMFLOAT4X4 pose;
+		for (DWORD x = 0; x < 4; x++)
+		{
+			for (DWORD y = 0; y < 4; y++)
+			{
+				pose(x, y) = (float)matrix.Get(x, y);
+			}
+		}
+		boneList[i].bindPose = XMLoadFloat4x4(&pose);
+		boneMap[cluster_[i]->GetLink()->GetName()] = &boneList[i];
 	}
 }
 
