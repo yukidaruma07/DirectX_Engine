@@ -37,7 +37,7 @@ struct Bone {
 
 struct Weight {
 	DirectX::XMFLOAT3 posOrigin = {};
-	//DirectX::XMFLOAT3 normalOrigin = {};
+	DirectX::XMFLOAT3 normalOrigin = {};
 	std::vector<int> boneIndex;
 	std::vector<float> boneWeight;
 };
@@ -75,6 +75,9 @@ private:
 
 	float nowFrame, animSpeed;
 	int startFrame, endFrame;
+
+	bool isAnime;
+	std::vector<int> controlPointIndexOfVertex_;
 public:
 	DirectX::XMMATRIX world_;
 
@@ -116,6 +119,8 @@ public:
 	void Release() override;
 
 	bool GetBonePostion(const std::string& boneName, DirectX::XMFLOAT3* postion);
+
+	void DrawAnime(FbxTime time);
 
 	/// <summary>
 	/// レイキャストを行う関数

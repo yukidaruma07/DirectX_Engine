@@ -17,6 +17,7 @@ struct PSInput
     float4 position : SV_Position; // 頂点の場所
     float4 color : COLOR; // 頂点の色
     float2 uv : TEXCOORD0; //UV座標
+    float3 normal : NORMAL; // 法線
 };
 
 float4 main(PSInput IN) : SV_Target

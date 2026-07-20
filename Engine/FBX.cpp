@@ -34,6 +34,7 @@ FBX::FBX(const std::string fName, FBXLoadOption fbxOption)
 
 	nowFrame = 0, animSpeed = 1.0f;
 	startFrame = 0, endFrame = 0;
+	isAnime = true;
 }
 
 FBX::~FBX() {
@@ -109,6 +110,9 @@ void FBX::InitVertex(FbxMesh* mesh) {
 				vertex.postion.z = (float)pos[1];			//頂点のZ座標を代入する
 			}
 
+			FbxVector4 Normal;
+			mesh->GetPolygonVertexNormal(poly, vertexCount, Normal);	//ｉ番目のポリゴンの、ｊ番目の頂点の法線をゲット
+			vertex.normal = XMFLOAT3((float)Normal[0], (float)Normal[1], -(float)Normal[2]);
 
 			FbxLayerElementUV* uvLayer = mesh->GetLayer(0)->GetUVs();
 			int uvIndex = mesh->GetTextureUVIndex(poly, vertexCount);
@@ -117,14 +121,19 @@ void FBX::InitVertex(FbxMesh* mesh) {
 			vertex.uv.y = (float)(1.0f - uv.mData[1]);		//UV座標の縦軸を代入する
 
 			vertices_.push_back(vertex);
+			controlPointIndexOfVertex_.push_back(index);
 		}
 	}
 	vertexCount_ = vertices_.size();
 
 	D3D11_BUFFER_DESC bd = {};
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+	//bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(Vertex) * vertexCount_;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA data = {};
 	data.pSysMem = vertices_.data();			//頂点データ
@@ -211,7 +220,7 @@ void FBX::InitSkeleton(fbxsdk::FbxMesh* mesh) {
 	for (DWORD i = 0; i < vertexCount_; i++)
 	{
 		weightList[i].posOrigin = vertices_[i].postion;
-		//weightList[i].normalOrigin = vertices_[i].normal;
+		weightList[i].normalOrigin = vertices_[i].normal;
 		weightList[i].boneIndex.resize(boneCount_);
 		weightList[i].boneWeight.resize(boneCount_);
 		for (int j = 0; j < boneCount_; j++)
@@ -219,6 +228,13 @@ void FBX::InitSkeleton(fbxsdk::FbxMesh* mesh) {
 			weightList[i].boneIndex[j] = -1;
 			weightList[i].boneWeight[j] = 0.0f;
 		}
+	}
+
+	std::unordered_map<int, std::vector<int>> cpToVerts;
+	cpToVerts.reserve(controlPointIndexOfVertex_.size());
+	for (int v = 0; v < (int)controlPointIndexOfVertex_.size(); ++v) {
+		int cp = controlPointIndexOfVertex_[v];
+		cpToVerts[cp].push_back(v);
 	}
 
 	for (int i = 0; i < boneCount_; i++)
@@ -229,21 +245,31 @@ void FBX::InitSkeleton(fbxsdk::FbxMesh* mesh) {
 
 		for (int k = 0; k < numIndex; k++)
 		{
-			for (int m = 0; m < 4; m++)
-			{
-				if (m >= boneCount_)
-					break;
+			int controlPointIdx = piIndex[k];
+			float weight = (float)pdWeight[k];
 
-				if (pdWeight[k] > weightList[piIndex[k]].boneWeight[m])
+			auto it = cpToVerts.find(controlPointIdx);
+			if (it == cpToVerts.end()) continue;
+
+			// control point に対応するすべての polygon-vertex に対してウェイトを適用
+			for (int vertexIdx : it->second)
+			{
+				for (int m = 0; m < 4; m++)
 				{
-					for (int n = boneCount_ - 1; n > m; n--)
+					if (m >= boneCount_)
+						break;
+
+					if (weight > weightList[vertexIdx].boneWeight[m])
 					{
-						weightList[piIndex[k]].boneIndex[n] = weightList[piIndex[k]].boneIndex[n - 1];
-						weightList[piIndex[k]].boneWeight[n] = weightList[piIndex[k]].boneWeight[n - 1];
+						for (int n = boneCount_ - 1; n > m; n--)
+						{
+							weightList[vertexIdx].boneIndex[n] = weightList[vertexIdx].boneIndex[n - 1];
+							weightList[vertexIdx].boneWeight[n] = weightList[vertexIdx].boneWeight[n - 1];
+						}
+						weightList[vertexIdx].boneIndex[m] = i;
+						weightList[vertexIdx].boneWeight[m] = weight;
+						break;
 					}
-					weightList[piIndex[k]].boneIndex[m] = i;
-					weightList[piIndex[k]].boneWeight[m] = (float)pdWeight[k];
-					break;
 				}
 			}
 
@@ -351,6 +377,76 @@ bool FBX::GetBonePostion(const std::string& boneName, DirectX::XMFLOAT3* postion
 	}
 
 	return false;
+}
+
+void FBX::DrawAnime(FbxTime time) {
+
+	// ボーンごとの現在の行列を取得する
+	for (int i = 0; i < boneCount_; i++)
+	{
+		FbxAnimEvaluator* evaluator = cluster_[i]->GetLink()->GetScene()->GetAnimationEvaluator();
+		FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(cluster_[i]->GetLink(), time);
+
+		// 行列コピー（Fbx形式からDirectXへの変換）
+		XMFLOAT4X4 pose = {};
+		for (DWORD x = 0; x < 4; x++)
+		{
+			for (DWORD y = 0; y < 4; y++)
+			{
+				pose(x, y) = (float)mCurrentOrentation.Get(x, y);
+			}
+		}
+
+		XMFLOAT4X4 mmat;
+		XMMATRIX mMirror;
+		mMirror = XMMatrixIdentity();
+		XMStoreFloat4x4(&mmat, mMirror);
+		mmat.m[2][2] = -1.0f;
+		mMirror = XMLoadFloat4x4(&mmat);
+
+		// オフセット時のポーズの差分を計算する
+		boneList[i].newPose = XMLoadFloat4x4(&pose) * mMirror;
+		boneList[i].diffPose = XMMatrixInverse(nullptr, boneList[i].bindPose * mMirror);
+		boneList[i].diffPose = boneList[i].diffPose * boneList[i].newPose;
+	}
+
+	// 各ボーンに対応した頂点の変形制御
+	for (DWORD i = 0; i < vertexCount_; i++)
+	{
+		// 各頂点ごとに、「影響するボーン×ウェイト値」を反映させた関節行列を作成する
+		XMMATRIX  matrix;
+		ZeroMemory(&matrix, sizeof(matrix));
+		for (int m = 0; m < boneCount_; m++)
+		{
+			if (weightList[i].boneIndex[m] < 0)
+			{
+				break;
+			}
+			matrix += boneList[weightList[i].boneIndex[m]].diffPose * weightList[i].boneWeight[m];
+		}
+
+		// 作成された関節行列を使って、頂点を変形する
+		XMVECTOR Pos = XMLoadFloat3(&weightList[i].posOrigin);
+		XMVECTOR Normal = XMLoadFloat3(&weightList[i].normalOrigin);
+
+		XMStoreFloat3(&vertices_[i].postion, XMVector3TransformCoord(Pos, matrix));
+		XMFLOAT3X3 mat33;
+		XMStoreFloat3x3(&mat33, matrix);
+		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
+		XMStoreFloat3(&vertices_[i].normal, XMVector3TransformCoord(Normal, matrix33));
+	}
+
+	// 頂点バッファをロックして、変形させた後の頂点情報で上書きする
+	D3D11_MAPPED_SUBRESOURCE msr = {};
+	DirectX3DManager::GetContext()->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+	if (msr.pData)
+	{
+		size_t copySize = sizeof(Vertex) * vertexCount_;
+		memcpy_s(msr.pData, copySize, vertices_.data(), copySize);
+		DirectX3DManager::GetContext()->Unmap(pVertexBuffer_, 0);
+	}
+
+	Draw();
 }
 
 bool FBX::Raycast(FBX* fbx, DirectX::XMFLOAT3 rayPos, DirectX::XMFLOAT3 rayDir, float& distance) {

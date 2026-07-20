@@ -38,6 +38,7 @@ struct Vertex {
 	DirectX::XMFLOAT3 postion = {};		/// 頂点のローカル座標
 	Color color = {};					/// 頂点の色
 	DirectX::XMFLOAT2 uv = {};			/// テクスチャのUV座標（※Uを横、Vを縦とする）
+	DirectX::XMFLOAT3 normal = {};	//法線
 };
 
 /// <summary>
