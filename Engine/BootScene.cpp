@@ -42,9 +42,9 @@ void BootScene::Update() {
 }
 
 void BootScene::Draw() {
-	FbxTime fbxTime = {};
-	fbxTime.SetFrame(30);
-	animeFbx->DrawAnime(fbxTime);
+	//FbxTime fbxTime = {};
+	//fbxTime.SetFrame(30);
+	animeFbx->DrawAnime();
 	//animeFbx->Draw();
 	animeFbx->DrawObjectInfoImGUI();
 }

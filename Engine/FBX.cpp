@@ -33,7 +33,7 @@ FBX::FBX(const std::string fName, FBXLoadOption fbxOption)
 	vertices_.clear();
 
 	nowFrame = 0, animSpeed = 1.0f;
-	startFrame = 0, endFrame = 0;
+	startFrame = 0, endFrame = 60;
 	isAnime = true;
 }
 
@@ -379,13 +379,19 @@ bool FBX::GetBonePostion(const std::string& boneName, DirectX::XMFLOAT3* postion
 	return false;
 }
 
-void FBX::DrawAnime(FbxTime time) {
+void FBX::DrawAnime() {
+	if (nowFrame > endFrame) {
+		nowFrame = startFrame;
+	}
+	nowFrame += animSpeed;
+
+	time_.SetFrame(nowFrame);
 
 	// ボーンごとの現在の行列を取得する
 	for (int i = 0; i < boneCount_; i++)
 	{
 		FbxAnimEvaluator* evaluator = cluster_[i]->GetLink()->GetScene()->GetAnimationEvaluator();
-		FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(cluster_[i]->GetLink(), time);
+		FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(cluster_[i]->GetLink(), time_);
 
 		// 行列コピー（Fbx形式からDirectXへの変換）
 		XMFLOAT4X4 pose = {};
@@ -406,8 +412,11 @@ void FBX::DrawAnime(FbxTime time) {
 
 		// オフセット時のポーズの差分を計算する
 		boneList[i].newPose = XMLoadFloat4x4(&pose) * mMirror;
-		boneList[i].diffPose = XMMatrixInverse(nullptr, boneList[i].bindPose * mMirror);
-		boneList[i].diffPose = boneList[i].diffPose * boneList[i].newPose;
+		//boneList[i].diffPose = XMMatrixInverse(nullptr, boneList[i].bindPose * mMirror);
+		//boneList[i].diffPose = boneList[i].diffPose * boneList[i].newPose;
+		boneList[i].diffPose =
+			boneList[i].newPose *
+			XMMatrixInverse(nullptr, boneList[i].bindPose);
 	}
 
 	// 各ボーンに対応した頂点の変形制御

@@ -78,6 +78,8 @@ private:
 
 	bool isAnime;
 	std::vector<int> controlPointIndexOfVertex_;
+
+	FbxTime time_ = {};
 public:
 	DirectX::XMMATRIX world_;
 
@@ -120,7 +122,7 @@ public:
 
 	bool GetBonePostion(const std::string& boneName, DirectX::XMFLOAT3* postion);
 
-	void DrawAnime(FbxTime time);
+	void DrawAnime();
 
 	/// <summary>
 	/// レイキャストを行う関数
