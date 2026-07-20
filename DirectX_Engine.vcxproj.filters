@@ -69,9 +69,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\AudioManager.cpp">
-      <Filter>Engine\Manager</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\InputManager.cpp">
       <Filter>Engine\Manager</Filter>
     </ClCompile>
@@ -84,17 +81,20 @@
     <ClCompile Include="Engine\Box.cpp">
       <Filter>Engine\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\CSVManager.cpp">
-      <Filter>Engine\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\ServerSocketManager.cpp">
-      <Filter>Engine\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="ClientSocketManager.cpp">
-      <Filter>Engine\Manager</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Texture.cpp">
       <Filter>Engine\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\AudioManager.cpp">
+      <Filter>Engine\Manager\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\CSVManager.cpp">
+      <Filter>Engine\Manager\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientSocketManager.cpp">
+      <Filter>Engine\Manager\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\ServerSocketManager.cpp">
+      <Filter>Engine\Manager\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -146,9 +146,6 @@
     <ClInclude Include="Engine\BootScene.h">
       <Filter>Engine\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\AudioManager.h">
-      <Filter>Engine\Manager</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\FBX.h">
       <Filter>Engine\Object</Filter>
     </ClInclude>
@@ -188,20 +185,23 @@
     <ClInclude Include="Engine\Box.h">
       <Filter>Engine\Object</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\CSVManager.h">
-      <Filter>Engine\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\ServerSocketManager.h">
-      <Filter>Engine\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientSocketManager.h">
-      <Filter>Engine\Manager</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Texture.h">
       <Filter>Engine\Data</Filter>
     </ClInclude>
     <ClInclude Include="Engine\BaseData.h">
       <Filter>Engine\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\AudioManager.h">
+      <Filter>Engine\Manager\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\CSVManager.h">
+      <Filter>Engine\Manager\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientSocketManager.h">
+      <Filter>Engine\Manager\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\ServerSocketManager.h">
+      <Filter>Engine\Manager\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +237,12 @@
     </Filter>
     <Filter Include="Engine\Data">
       <UniqueIdentifier>{1cc80868-bd6f-4b35-a3ef-fe47065dfa15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Manager\Resource">
+      <UniqueIdentifier>{6c41fd23-ce4f-4ab4-8a47-d01406f5b793}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Manager\Network">
+      <UniqueIdentifier>{c9cd1fee-141f-4553-8a0e-545595c05442}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
