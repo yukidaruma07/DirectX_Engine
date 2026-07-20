@@ -11,7 +11,7 @@
 /// </summary>
 class Image : public BaseObject {
 private:
-	Texture* texture_;
+	Texture* texture_;	// 画像を表示するためのテクスチャデータ
 public:
 	Image(const std::string& path, const float leftX, const float leftY);
 	~Image() {};

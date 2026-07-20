@@ -29,7 +29,7 @@ FBX::FBX(const std::string fName, FBXLoadOption fbxOption)
 	vertexCount_ = -1;
 	materials_.clear();
 	indexBuffer_.clear();
-	pVertexBuffer_ = nullptr;
+	vertexBuffer_ = nullptr;
 	vertices_.clear();
 
 	nowFrame = 0, animSpeed = 1.0f;
@@ -96,15 +96,15 @@ void FBX::InitVertex(FbxMesh* mesh) {
 			int index = mesh->GetPolygonVertex(poly, vertexCount);
 			FbxVector4 pos = mesh->GetControlPointAt(index);	//頂点座標（ローカル）
 
-			LoggerManager::InfoDebug(fbxImporter_->GetFileName().Buffer());
-			LoggerManager::InfoDebug(std::to_string(vertexCount) + "ローカル座標：" + std::to_string((float)pos[0]) + "," + std::to_string((float)pos[1]) + "," + std::to_string((float)pos[2]));
+			//LoggerManager::InfoDebug(fbxImporter_->GetFileName().Buffer());
+			//LoggerManager::InfoDebug(std::to_string(vertexCount) + "ローカル座標：" + std::to_string((float)pos[0]) + "," + std::to_string((float)pos[1]) + "," + std::to_string((float)pos[2]));
 
-			if (fbxLoadOption_.postionType == FBX_LEFTX_YUP_DEPTHX) {
+			if (fbxLoadOption_.postionType == FBXPostionType::LEFTX_YUP_DEPTHZ) {
 				vertex.postion.x = (float)pos[0];			//頂点のX座標を代入する
 				vertex.postion.y = (float)pos[1];			//頂点のY座標を代入する
 				vertex.postion.z = (float)pos[2];			//頂点のZ座標を代入する
 			}
-			else if (fbxLoadOption_.postionType == FBX_LEFTX_ZUP_DEPTHY) {
+			else if (fbxLoadOption_.postionType == FBXPostionType::LEFTX_ZUP_DEPTHY) {
 				vertex.postion.x = (float)pos[0];			//頂点のX座標を代入する
 				vertex.postion.y = (float)pos[2];			//頂点のY座標を代入する
 				vertex.postion.z = (float)pos[1];			//頂点のZ座標を代入する
@@ -126,19 +126,19 @@ void FBX::InitVertex(FbxMesh* mesh) {
 	}
 	vertexCount_ = vertices_.size();
 
-	D3D11_BUFFER_DESC bd = {};
-	bd.Usage = D3D11_USAGE_DYNAMIC;
+	D3D11_BUFFER_DESC vertexDesc = {};
+	vertexDesc.Usage = D3D11_USAGE_DYNAMIC;
 	//bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(Vertex) * vertexCount_;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bd.MiscFlags = 0;
-	bd.StructureByteStride = 0;
+	vertexDesc.ByteWidth = sizeof(Vertex) * vertexCount_;
+	vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertexDesc.MiscFlags = 0;
+	vertexDesc.StructureByteStride = 0;
 
-	D3D11_SUBRESOURCE_DATA data = {};
-	data.pSysMem = vertices_.data();			//頂点データ
+	D3D11_SUBRESOURCE_DATA vertexData = {};
+	vertexData.pSysMem = vertices_.data();			//頂点データ
 
-	HRESULT hr = GetDevice()->CreateBuffer(&bd, &data, &pVertexBuffer_);	//頂点バッファを作成する
+	GetDevice()->CreateBuffer(&vertexDesc, &vertexData, &vertexBuffer_);	//頂点バッファを作成する
 }
 
 void FBX::InitIndex(FbxMesh* mesh) {
@@ -158,15 +158,15 @@ void FBX::InitIndex(FbxMesh* mesh) {
 
 		}
 
-		D3D11_BUFFER_DESC bd = {};
-		bd.ByteWidth = sizeof(int) * index_[i].size();
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		D3D11_BUFFER_DESC indexDesc = {};
+		indexDesc.ByteWidth = sizeof(int) * index_[i].size();
+		indexDesc.Usage = D3D11_USAGE_DEFAULT;
+		indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
-		D3D11_SUBRESOURCE_DATA data = {};
-		data.pSysMem = index_[i].data();				//インデックスバッファ
+		D3D11_SUBRESOURCE_DATA indexData = {};
+		indexData.pSysMem = index_[i].data();				//インデックスバッファ
 
-		HRESULT hr = GetDevice()->CreateBuffer(&bd, &data, &indexBuffer_[i]);
+		HRESULT hr = GetDevice()->CreateBuffer(&indexDesc, &indexData, &indexBuffer_[i]);
 	}
 }
 
@@ -325,7 +325,7 @@ void FBX::Draw() {
 
 	ChangeDrawWireFrameMode(false);
 	GetContext()->IASetInputLayout(ShaderManager::inputLayout_);
-	GetContext()->IASetVertexBuffers(0, 1, &pVertexBuffer_, &stride, &offset);
+	GetContext()->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
 	GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	GetContext()->VSSetShader(ShaderManager::vertexShader_, nullptr, 0);
 	GetContext()->PSSetShader(ShaderManager::pixelShader_, nullptr, 0);
@@ -447,12 +447,12 @@ void FBX::DrawAnime() {
 
 	// 頂点バッファをロックして、変形させた後の頂点情報で上書きする
 	D3D11_MAPPED_SUBRESOURCE msr = {};
-	DirectX3DManager::GetContext()->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+	DirectX3DManager::GetContext()->Map(vertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
 	if (msr.pData)
 	{
 		size_t copySize = sizeof(Vertex) * vertexCount_;
 		memcpy_s(msr.pData, copySize, vertices_.data(), copySize);
-		DirectX3DManager::GetContext()->Unmap(pVertexBuffer_, 0);
+		DirectX3DManager::GetContext()->Unmap(vertexBuffer_, 0);
 	}
 
 	Draw();

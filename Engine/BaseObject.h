@@ -6,19 +6,21 @@
 
 class CircleCollider;
 
+/// <summary>
+/// オブジェクトの基底クラス
+/// </summary>
 class BaseObject {
 private:
-    
 protected:
-    std::vector<CircleCollider*> colliderList;
-    std::string name_;
-    bool isDead_;
-    bool isShowImGUI_;
+    std::vector<CircleCollider*> colliderList;  // オブジェクトが持っているコライダー
+    std::string name_;                          // オブジェクトの名前
+    bool isDead_;                               // オブジェクトが死んでいるか
+    bool isShowImGUI_;                          // ImGUIを表示するかのフラグ
 
-    DirectX::XMFLOAT3 postion_;
-    DirectX::XMFLOAT3 velocity_;
-    DirectX::XMFLOAT3 rotation_;
-    DirectX::XMFLOAT3 scale_;
+    DirectX::XMFLOAT3 postion_;                 // オブジェクトの場所
+    DirectX::XMFLOAT3 velocity_;                // オブジェクトのベクトル
+    DirectX::XMFLOAT3 rotation_;                // オブジェクトの回転
+    DirectX::XMFLOAT3 scale_;                   // オブジェクトの大きさ
 public:
 
     BaseObject(const std::string& name, const bool isDead = false) {
@@ -77,10 +79,30 @@ public:
     /// <param name="obj">当たったオブジェクト</param>
     virtual void OnCollide(BaseObject* obj) {}
 
+    /// <summary>
+    /// オブジェクトの名前を返す関数
+    /// </summary>
     std::string GetName() { return name_; };
+
+    /// <summary>
+    /// オブジェクトが死んでいるかを返す関数。
+    /// </summary>
+    /// <returns>死んでいる場合はtrue、死んでいない場合はfalse。</returns>
     bool IsDead() { return isDead_; };
+
+    /// <summary>
+    /// オブジェクトをキルする関数。
+    /// </summary>
     void KillMe() { this->isDead_ = true; }
+
+    /// <summary>
+    /// ImGUIが表示させる設定化を返す関数
+    /// </summary>
     bool IsShowImGUI() { return isShowImGUI_; }
+
+    /// <summary>
+    /// ImGUIを表示させるか設定する関数
+    /// </summary>
     void SetShowImGUI(bool flag) { this->isShowImGUI_ = flag; }
 
     DirectX::XMFLOAT3 GetPosition() const { return postion_; }

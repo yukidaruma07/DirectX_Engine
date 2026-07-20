@@ -33,7 +33,7 @@ void BootScene::Init() {
 	//ObjectManager::AddObject(new FBX("Oden.fbx", {FBXPostionType::FBX_LEFTX_YUP_DEPTHX}));
 	ObjectManager::AddObject(new Box(Color::GetRed(), 64, 64));
 
-	animeFbx = new FBX("anime.fbx", { FBXPostionType::FBX_LEFTX_ZUP_DEPTHY });
+	animeFbx = new FBX("anime.fbx", { FBXPostionType::LEFTX_ZUP_DEPTHY });
 	animeFbx->Init();
 }
 
