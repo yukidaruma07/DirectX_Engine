@@ -141,12 +141,12 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ClientSocketManager.cpp" />
     <ClCompile Include="Engine\AudioManager.cpp" />
     <ClCompile Include="Engine\BootScene.cpp" />
     <ClCompile Include="Engine\Box.cpp" />
     <ClCompile Include="Engine\CameraManager.cpp" />
     <ClCompile Include="Engine\CircleCollider.cpp" />
+    <ClCompile Include="Engine\ClientSocketManager.cpp" />
     <ClCompile Include="Engine\CSVManager.cpp" />
     <ClCompile Include="Engine\DirectX2DManager.cpp" />
     <ClCompile Include="Engine\DirectX3DManager.cpp" />
@@ -171,7 +171,6 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClientSocketManager.h" />
     <ClInclude Include="Engine\AudioManager.h" />
     <ClInclude Include="Engine\BaseData.h" />
     <ClInclude Include="Engine\BaseObject.h" />
@@ -180,6 +179,7 @@
     <ClInclude Include="Engine\Box.h" />
     <ClInclude Include="Engine\CameraManager.h" />
     <ClInclude Include="Engine\CircleCollider.h" />
+    <ClInclude Include="Engine\ClientSocketManager.h" />
     <ClInclude Include="Engine\Collider.h" />
     <ClInclude Include="Engine\CSVManager.h" />
     <ClInclude Include="Engine\DirectX2DManager.h" />
