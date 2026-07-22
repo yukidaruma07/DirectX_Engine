@@ -59,6 +59,7 @@
 * ドキュメント： https://github.com/programmer-2025/DirectX11_Document
 
 # 参考
+* MP3の再生： https://qiita.com/ryo_shiraishi6352/items/d4a40521bdb09c838e9d
 
 # このエンジンによる作品
 
