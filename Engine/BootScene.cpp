@@ -5,6 +5,7 @@
 #include "LoggerManager.h"
 #include "FBX.h"
 #include "Box.h"
+#include "AudioManager.h"
 
 namespace {
 	FBX* animeFbx = nullptr;
@@ -32,6 +33,11 @@ void BootScene::Init() {
 	ObjectManager::AddObject(new Image("test.PNG", 64, 64));
 	//ObjectManager::AddObject(new FBX("Oden.fbx", {FBXPostionType::FBX_LEFTX_YUP_DEPTHX}));
 	ObjectManager::AddObject(new Box(Color::GetRed(), 64, 64));
+
+	//int id = AudioManager::LoadMP3("Bossa_Latte.mp3");
+	//int id = AudioManager::Load("Bossa_Latte.mp3");
+	//AudioManager::PlayMP3(id);
+	//AudioManager::Play(id);
 
 	animeFbx = new FBX("anime.fbx", { FBXPostionType::LEFTX_ZUP_DEPTHY });
 	animeFbx->Init();

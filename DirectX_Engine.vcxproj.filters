@@ -90,11 +90,12 @@
     <ClCompile Include="Engine\CSVManager.cpp">
       <Filter>Engine\Manager\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="ClientSocketManager.cpp">
-      <Filter>Engine\Manager\Network</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\ServerSocketManager.cpp">
       <Filter>Engine\Manager\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\ClientSocketManager.cpp" />
+    <ClCompile Include="Engine\MediaManager.cpp">
+      <Filter>Engine\Manager\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -197,11 +198,12 @@
     <ClInclude Include="Engine\CSVManager.h">
       <Filter>Engine\Manager\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="ClientSocketManager.h">
-      <Filter>Engine\Manager\Network</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\ServerSocketManager.h">
       <Filter>Engine\Manager\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\ClientSocketManager.h" />
+    <ClInclude Include="Engine\MediaManager.h">
+      <Filter>Engine\Manager\Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

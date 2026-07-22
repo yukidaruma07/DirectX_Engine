@@ -43,8 +43,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	initializeImGUI();
 	DirectX2DManager::Init();
 	ShaderManager::InitShader();
-	SceneManager::InitManager();
 	AudioManager::InitManager();
+	SceneManager::InitManager();
 	CameraManager::addCamera("RootCamera");
 	CameraManager::setCurentCamera("RootCamera");
 
