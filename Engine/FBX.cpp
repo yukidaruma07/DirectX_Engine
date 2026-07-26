@@ -323,7 +323,7 @@ void FBX::Draw() {
 	UINT offset = 0;
 	ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 
-	ChangeDrawWireFrameMode(false);
+	ChangeDrawWireFrameMode(IsWireframe());
 	GetContext()->IASetInputLayout(ShaderManager::inputLayout_);
 	GetContext()->IASetVertexBuffers(0, 1, &vertexBuffer_, &stride, &offset);
 	GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

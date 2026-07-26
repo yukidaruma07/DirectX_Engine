@@ -5,7 +5,7 @@
 /// <summary>
 /// 当たり判定で必要となる、円のコライダー
 /// </summary>
-class CircleCollider : public BaseObject, public Collider {
+class CircleCollider : public Collider {
 private:
 	BaseObject* parent_;	// コライダーの親
 	int radius_;			// コライダーの半径

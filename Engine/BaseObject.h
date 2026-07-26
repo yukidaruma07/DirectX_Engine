@@ -4,7 +4,7 @@
 #include <vector>
 #include "../ImGUI/imgui.h"
 
-class CircleCollider;
+class Collider;
 
 /// <summary>
 /// オブジェクトの基底クラス
@@ -12,7 +12,7 @@ class CircleCollider;
 class BaseObject {
 private:
 protected:
-    std::vector<CircleCollider*> colliderList;  // オブジェクトが持っているコライダー
+    std::vector<Collider*> colliderList;  // オブジェクトが持っているコライダー
     std::string name_;                          // オブジェクトの名前
     bool isDead_;                               // オブジェクトが死んでいるか
     bool isShowImGUI_;                          // ImGUIを表示するかのフラグ
@@ -114,5 +114,5 @@ public:
     DirectX::XMFLOAT3 GetScale() const { return scale_; }
     void SetScale(const DirectX::XMFLOAT3 scale) { this->scale_ = scale; }
 
-    std::vector<CircleCollider*>& GetColiderList() { return colliderList; }
+    std::vector<Collider*>& GetColiderList() { return colliderList; }
 };

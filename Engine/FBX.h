@@ -58,6 +58,7 @@ private:
 	std::vector<ID3D11Buffer*> pMaterialConstantBuffers_;	// マテリアルごとのコンスタントバッファ
 	std::vector<ID3D11Buffer*> indexBuffer_; //インデックスバッファ
 	std::vector<std::vector<int>> index_;	// インデックスのデータ
+	bool wireFrame_;
 private:
 
 	/// 
@@ -150,5 +151,10 @@ public:
 	/// レイキャストを行う関数
 	/// </summary>
 	static bool Raycast(FBX* fbx, DirectX::XMFLOAT3 rayPos, DirectX::XMFLOAT3 rayDir, float& distance);
+
+	bool IsWireframe() { return this->wireFrame_; }
+	void EnableWireFrame() { this->wireFrame_ = true; }
+	void DisableWireFrame() { this->wireFrame_ = false; }
+
 };
 
