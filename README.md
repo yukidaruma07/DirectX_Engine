@@ -11,11 +11,18 @@
 | BaseObject.h | 基底クラス |
 | Collder.h | コライダークラス |
 | CircleCollider.cpp/h | 円のコライダー |
+| BoxCollider.cpp/h | 四角形のコライダー |
 | FBX.cpp/h | fbxsdkによる、fbxファイルを描画するクラス |
 | Image.cpp/h | 画像を描画するためのクラス |
-| Textture.cpp/h | FBXなどに貼る画像ファイル（テクスチャ）クラス |
 | Triangle.cpp/h | 三角形を描画するためのクラス |
 | Box.cpp/h | 四角形を描画するクラス |
+
+## データ保持
+| ファイル | 説明 |
+| ---- | ---- |
+| BaseData.h | 基底クラス |
+| Transform.h | 座標などを保持するクラス |
+| Textture.cpp/h | FBXなどに貼る画像ファイル（テクスチャ）クラス |
 
 ## シーン
 | ファイル | 説明 |
