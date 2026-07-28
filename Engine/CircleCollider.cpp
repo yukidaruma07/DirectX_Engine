@@ -27,9 +27,9 @@ void CircleCollider::Init()
 
 void CircleCollider::Update()
 {
-	postion_ = parent_->GetPosition();
+	SetPosition(parent_->GetPosition());
 	fbx_->Update();
-	fbx_->SetPosition(postion_);
+	fbx_->SetPosition(GetPosition());
 }
 
 void CircleCollider::Draw()

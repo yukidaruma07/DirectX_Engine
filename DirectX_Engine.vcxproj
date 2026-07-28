@@ -195,6 +195,7 @@
     <ClInclude Include="Engine\SceneManager.h" />
     <ClInclude Include="Engine\ServerSocketManager.h" />
     <ClInclude Include="Engine\Texture.h" />
+    <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Engine\Triangle.h" />
     <ClInclude Include="GameEngine.hpp" />
     <ClInclude Include="ImGUI\imconfig.h" />

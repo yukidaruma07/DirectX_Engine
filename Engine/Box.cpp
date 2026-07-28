@@ -46,10 +46,7 @@ void Box::Update() {
 	Camera* camera = CameraManager::getCurentCamera();
 	if (camera == nullptr) return;
 
-	XMMATRIX scaleMat = XMMatrixScaling(scale_.x, scale_.y, scale_.z);
-	XMMATRIX rotMat = XMMatrixRotationZ(rotation_.z) * XMMatrixRotationX(rotation_.x) * XMMatrixRotationY(rotation_.y);
-	XMMATRIX transMat = XMMatrixTranslation(postion_.x, postion_.y, postion_.z);
-	XMMATRIX world = scaleMat * rotMat * transMat;
+	XMMATRIX world = transform_.GetWorldMatrix();
 	XMMATRIX view = camera->getMatrix();
 	XMMATRIX projection = camera->GetProjection();
 

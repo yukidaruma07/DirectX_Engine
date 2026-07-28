@@ -28,10 +28,10 @@ void BoxCollider::Update()
 	float x = parent_->GetPosition().x + boxSize_.x / 2;
 	float y = parent_->GetPosition().y + boxSize_.y / 2;
 	float z = parent_->GetPosition().z + boxSize_.z / 2;
-	postion_ = DirectX::XMFLOAT3{x, y, z};
+	transform_.postion_ = DirectX::XMFLOAT3{x, y, z};
 	fbx_->Update();
-	fbx_->SetPosition(parent_->GetPosition());
-	fbx_->SetScale(boxSize_);
+	fbx_->transform_.postion_ = parent_->transform_.postion_;
+	fbx_->transform_.scale_ = boxSize_;
 }
 
 void BoxCollider::Draw()
@@ -45,12 +45,12 @@ void BoxCollider::Release()
 }
 
 bool BoxCollider::IsBox(BoxCollider* boxCol) {
-	bool x = postion_.x - boxSize_.x / 2 < boxCol->GetPosition().x + boxCol->GetBoxSize().x / 2 &&
-		postion_.x + boxSize_.x / 2 > boxCol->GetPosition().x - boxCol->GetBoxSize().x / 2;
-	bool y = postion_.y - boxSize_.y / 2 < boxCol->GetPosition().y + boxCol->GetBoxSize().y / 2 &&
-		postion_.y + boxSize_.y / 2 > boxCol->GetPosition().y - boxCol->GetBoxSize().y / 2;
-	bool z = postion_.z - boxSize_.z / 2 < boxCol->GetPosition().z + boxCol->GetBoxSize().z / 2 &&
-		postion_.z + boxSize_.z / 2 > boxCol->GetPosition().z - boxCol->GetBoxSize().z / 2;
+	bool x = GetPosition().x - boxSize_.x / 2 < boxCol->GetPosition().x + boxCol->GetBoxSize().x / 2 &&
+		GetPosition().x + boxSize_.x / 2 > boxCol->GetPosition().x - boxCol->GetBoxSize().x / 2;
+	bool y = GetPosition().y - boxSize_.y / 2 < boxCol->GetPosition().y + boxCol->GetBoxSize().y / 2 &&
+		GetPosition().y + boxSize_.y / 2 > boxCol->GetPosition().y - boxCol->GetBoxSize().y / 2;
+	bool z = GetPosition().z - boxSize_.z / 2 < boxCol->GetPosition().z + boxCol->GetBoxSize().z / 2 &&
+		GetPosition().z + boxSize_.z / 2 > boxCol->GetPosition().z - boxCol->GetBoxSize().z / 2;
 
 	return x && y && z;
 }

@@ -95,8 +95,6 @@ private:
 	int startFrame, endFrame;
 
 public:
-	DirectX::XMMATRIX world_;
-
 	FBX(const std::string fName, FBXLoadOption fbxLoadOption);
 	~FBX();
 

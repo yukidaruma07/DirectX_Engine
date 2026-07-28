@@ -96,11 +96,11 @@
     <ClCompile Include="Engine\BoxCollider.cpp">
       <Filter>Engine\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Collider.cpp">
-      <Filter>Engine\Manager\Network</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\ClientSocketManager.cpp">
       <Filter>Engine\Manager\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Collider.cpp">
+      <Filter>Engine\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -211,6 +211,9 @@
     </ClInclude>
     <ClInclude Include="Engine\ClientSocketManager.h">
       <Filter>Engine\Manager\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Transform.h">
+      <Filter>Engine\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

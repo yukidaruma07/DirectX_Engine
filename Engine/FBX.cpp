@@ -297,16 +297,13 @@ void FBX::InitSkeleton(fbxsdk::FbxMesh* mesh) {
 
 void FBX::Update() {
 	auto currentCamera = CameraManager::getCurentCamera();
-	XMMATRIX scaleMat = XMMatrixScaling(scale_.x, scale_.y, scale_.z);
-	XMMATRIX rotMat = XMMatrixRotationZ(rotation_.z) * XMMatrixRotationX(rotation_.x) * XMMatrixRotationY(rotation_.y);
-	XMMATRIX transMat = XMMatrixTranslation(postion_.x, postion_.y, postion_.z);
-	world_ = scaleMat * rotMat * transMat;
+	XMMATRIX world = transform_.GetWorldMatrix();
 	XMMATRIX view = currentCamera->getMatrix();
 	XMMATRIX projection = currentCamera->GetProjection();
 
 	for (int i = 0; i < materialCount_; i++) {
 		ConstantBuffer cb = {};
-		cb.wvpMat = XMMatrixTranspose(world_ * view * projection);
+		cb.wvpMat = XMMatrixTranspose(world * view * projection);
 		cb.diffUse = materials_[i].diffuse;	// ディフューズカラーをコンスタントバッファに代入
 		cb.ambient = materials_[i].ambient; // アンビエントカラーをコンスタントバッファに代入
 		cb.speculer = materials_[i].specular; // スペキュラーをコンスタントバッファに代入
@@ -469,9 +466,10 @@ bool FBX::Raycast(FBX* fbx, DirectX::XMFLOAT3 rayPos, DirectX::XMFLOAT3 rayDir, 
 		auto vertex1 = DirectX::XMLoadFloat3(&fbx->vertices_[v + 1].postion);
 		auto vertex2 = DirectX::XMLoadFloat3(&fbx->vertices_[v + 2].postion);
 
-		vertex0 = XMVector3TransformCoord(vertex0, fbx->world_);
-		vertex1 = XMVector3TransformCoord(vertex1, fbx->world_);
-		vertex2 = XMVector3TransformCoord(vertex2, fbx->world_);
+		XMMATRIX worldMat = fbx->transform_.GetWorldMatrix();
+		vertex0 = XMVector3TransformCoord(vertex0, worldMat);
+		vertex1 = XMVector3TransformCoord(vertex1, worldMat);
+		vertex2 = XMVector3TransformCoord(vertex2, worldMat);
 
 		float dis;
 		if (DirectX::TriangleTests::Intersects(
