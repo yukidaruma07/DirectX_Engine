@@ -93,9 +93,14 @@
     <ClCompile Include="Engine\ServerSocketManager.cpp">
       <Filter>Engine\Manager\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\ClientSocketManager.cpp" />
-    <ClCompile Include="Engine\MediaManager.cpp">
-      <Filter>Engine\Manager\Resource</Filter>
+    <ClCompile Include="Engine\BoxCollider.cpp">
+      <Filter>Engine\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Collider.cpp">
+      <Filter>Engine\Manager\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\ClientSocketManager.cpp">
+      <Filter>Engine\Manager\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -201,9 +206,11 @@
     <ClInclude Include="Engine\ServerSocketManager.h">
       <Filter>Engine\Manager\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\ClientSocketManager.h" />
-    <ClInclude Include="Engine\MediaManager.h">
-      <Filter>Engine\Manager\Resource</Filter>
+    <ClInclude Include="Engine\BoxCollider.h">
+      <Filter>Engine\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\ClientSocketManager.h">
+      <Filter>Engine\Manager\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
