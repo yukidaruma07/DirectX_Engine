@@ -152,7 +152,8 @@
     <ClCompile Include="Engine\CSVManager.cpp" />
     <ClCompile Include="Engine\DirectX2DManager.cpp" />
     <ClCompile Include="Engine\DirectX3DManager.cpp" />
-    <ClCompile Include="Engine\FBX.cpp" />
+    <ClCompile Include="Engine\FBXChildren.cpp" />
+    <ClCompile Include="Engine\FBXParent.cpp" />
     <ClCompile Include="Engine\Image.cpp" />
     <ClCompile Include="Engine\InputManager.cpp" />
     <ClCompile Include="Engine\ObjectManager.cpp" />
@@ -187,7 +188,8 @@
     <ClInclude Include="Engine\CSVManager.h" />
     <ClInclude Include="Engine\DirectX2DManager.h" />
     <ClInclude Include="Engine\DirectX3DManager.h" />
-    <ClInclude Include="Engine\FBX.h" />
+    <ClInclude Include="Engine\FBXChildren.h" />
+    <ClInclude Include="Engine\FBXParent.h" />
     <ClInclude Include="Engine\Image.h" />
     <ClInclude Include="Engine\InputManager.h" />
     <ClInclude Include="Engine\LoggerManager.h" />

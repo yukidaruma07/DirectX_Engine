@@ -1,8 +1,8 @@
 #include "BoxCollider.h"
-#include "FBX.h"
+#include "FBXParent.h"
 
 namespace {
-	FBX* fbx_ = nullptr;
+	FBXParent* fbx_ = nullptr;
 }
 
 BoxCollider::BoxCollider(BaseObject* parent, DirectX::XMFLOAT3 boxSize)
@@ -19,7 +19,7 @@ BoxCollider::~BoxCollider()
 
 void BoxCollider::Init()
 {
-	fbx_ = new FBX("Engine/BoxCollider.fbx", {FBXPostionType::LEFTX_ZUP_DEPTHY});
+	fbx_ = new FBXParent("Engine/BoxCollider.fbx", {FBXPostionType::LEFTX_ZUP_DEPTHY});
 	fbx_->Init();
 }
 
@@ -37,7 +37,7 @@ void BoxCollider::Update()
 
 void BoxCollider::Draw()
 {
-	fbx_->EnableWireFrame();
+	//fbx_->EnableWireFrame();
 	fbx_->Draw();
 }
 

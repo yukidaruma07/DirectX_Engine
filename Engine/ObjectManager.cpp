@@ -55,6 +55,15 @@ void ObjectManager::UpdateManager() {
                 obj->DrawObjectInfoImGUI();
             #endif
         }
+
+        auto& childList = obj->GetChildList();
+        for (int i = 0; i < childList.size(); i++) {
+            BaseObject* child = childList[i];
+            if (child != nullptr) {
+                child->Update();
+                child->Draw();
+            }
+        }
     }
 }
 

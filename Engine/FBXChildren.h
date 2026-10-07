@@ -1,57 +1,9 @@
 #pragma once
-#include <Windows.h>
 #include "BaseObject.h"
-#include <DirectXMath.h>
-#include <d3d11.h>
-#include <string>
-#include <vector>
-#include "fbxsdk.h"
-#include "Texture.h"
+#include "FBXParent.h"
 #include <unordered_map>
-#pragma comment(lib, "LibFbxSDK-MD.lib")
-#pragma comment(lib, "LibXml2-MD.lib")
-#pragma comment(lib, "zlib-MD.lib")
 
-enum class FBXPostionType {
-	LEFTX_YUP_DEPTHZ,		// 左右をX、上下をY、深さをZ（Mayaでの推奨）
-	LEFTX_ZUP_DEPTHY		// 左右をX、上下をZ、深さをY（Blenderでの推奨）
-};
-
-/// <summary>
-/// FBXの読み込むオプション
-/// </summary>
-struct FBXLoadOption {
-	FBXPostionType postionType = FBXPostionType::LEFTX_YUP_DEPTHZ;
-};
-
-/// <summary>
-/// マテリアルの構造体
-/// </summary>
-struct MATERIAL {
-	Texture* texture;			// テクスチャのデータ
-	DirectX::XMFLOAT4 diffuse;	// ディフューズ（マテリアルの色）
-	DirectX::XMFLOAT4 ambient;  // 環境光（影の色）
-	DirectX::XMFLOAT4 specular; // 光沢（反射した時の色）
-	float shininess;			// 輝きの強さ
-};
-
-struct Bone {
-	DirectX::XMMATRIX bindPose = {};
-	DirectX::XMMATRIX newPose = {};
-	DirectX::XMMATRIX diffPose = {};
-};
-
-struct Weight {
-	DirectX::XMFLOAT3 posOrigin = {};
-	DirectX::XMFLOAT3 normalOrigin = {};
-	std::vector<int> boneIndex;
-	std::vector<float> boneWeight;
-};
-
-/// <summary>
-/// FBXの3Dモデルを表示するクラス
-/// </summary>
-class FBX : public BaseObject {
+class FBXChildren : public BaseObject {
 private:
 	ID3D11Buffer* vertexBuffer_; //頂点バッファ
 	std::vector<Vertex> vertices_; //頂点のデータ
@@ -60,15 +12,12 @@ private:
 	std::vector<std::vector<int>> index_;	// インデックスのデータ
 	bool wireFrame_;
 private:
-
-	/// 
-	/// FBXの基本データ
-	/// 
-	std::string path_;		// FBXが存在するパス
-	bool isShowTexture_;	// テクスチャを表示するかのフラグ
+	bool isShowTexture_;
 	FBXLoadOption fbxLoadOption_;	//　FBXを初期化するためのオプション
-	FbxManager* fbxManager_;
-	FbxImporter* fbxImporter_;
+
+	FbxNode* node_;
+	FbxMesh* mesh_;
+
 	int materialCount_;	// マテリアルの数
 	int vertexCount_;	// 頂点の数
 	int polygonCount_;	// ポリゴンの数
@@ -93,20 +42,18 @@ private:
 	FbxTime time_ = {};
 	float nowFrame, animSpeed;
 	int startFrame, endFrame;
-
+protected:
 public:
-	FBX(const std::string fName, FBXLoadOption fbxLoadOption);
-	~FBX();
 
-	ID3D11Buffer* GetVertexBuffer() const { return vertexBuffer_; }
-	std::vector<ID3D11Buffer*> GetIndexBuffer() const { return indexBuffer_; }
+	FBXChildren(FBXParent* parent, FbxNode* node);
+	~FBXChildren();
 
 	void Init() override;
 
 	/// <summary>
-	/// 頂点を初期化する関数
-	/// </summary>
-	/// <param name="mesh">読み込むFBXのメッシュ</param>
+/// 頂点を初期化する関数
+/// </summary>
+/// <param name="mesh">読み込むFBXのメッシュ</param>
 	void InitVertex(fbxsdk::FbxMesh* mesh);
 
 	/// <summary>
@@ -133,7 +80,7 @@ public:
 	void Release() override;
 
 	void DrawObjectInfoImGUI() override {
-		ImGui::Begin(fbxImporter_->GetFileName());
+		ImGui::Begin("FBX");
 		ImGui::SliderFloat("X", &transform_.postion_.x, -1280.0f, 1280.0f);
 		ImGui::SliderFloat("Y", &transform_.postion_.y, -1280.0f, 1280.0f);
 		ImGui::SliderFloat("Z", &transform_.postion_.z, -1280.0f, 1280.0f);
@@ -162,11 +109,9 @@ public:
 	/// <summary>
 	/// レイキャストを行う関数
 	/// </summary>
-	static bool Raycast(FBX* fbx, DirectX::XMFLOAT3 rayPos, DirectX::XMFLOAT3 rayDir, float& distance);
+	bool Raycast(DirectX::XMFLOAT3 rayPos, DirectX::XMFLOAT3 rayDir, float& distance);
 
 	bool IsWireframe() { return this->wireFrame_; }
 	void EnableWireFrame() { this->wireFrame_ = true; }
 	void DisableWireFrame() { this->wireFrame_ = false; }
-
 };
-

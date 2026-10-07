@@ -1,10 +1,10 @@
 #include "CircleCollider.h"
-#include "FBX.h"
+#include "FBXParent.h"
 
 using namespace DirectX;
 
 namespace {
-	FBX* fbx_ = nullptr;
+	FBXParent* fbx_ = nullptr;
 }
 
 CircleCollider::CircleCollider(BaseObject* parent, int radius)
@@ -21,7 +21,7 @@ CircleCollider::~CircleCollider()
 
 void CircleCollider::Init()
 {
-	fbx_ = new FBX("Engine/CircleCollider.fbx", { FBXPostionType::LEFTX_ZUP_DEPTHY });
+	fbx_ = new FBXParent("Engine/CircleCollider.fbx", { FBXPostionType::LEFTX_ZUP_DEPTHY });
 	fbx_->Init();
 }
 
@@ -35,7 +35,7 @@ void CircleCollider::Update()
 
 void CircleCollider::Draw()
 {
-	fbx_->EnableWireFrame();
+	//fbx_->EnableWireFrame();
 	fbx_->Draw();
 
 }
