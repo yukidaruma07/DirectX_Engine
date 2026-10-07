@@ -29,6 +29,7 @@ void BoxCollider::Update()
 	float y = parent_->GetPosition().y + boxSize_.y / 2;
 	float z = parent_->GetPosition().z + boxSize_.z / 2;
 	transform_.postion_ = DirectX::XMFLOAT3{x, y, z};
+	fbx_->UpdateTransform();
 	fbx_->Update();
 	fbx_->transform_.postion_ = parent_->transform_.postion_;
 	fbx_->transform_.scale_ = boxSize_;

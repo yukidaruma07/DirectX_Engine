@@ -18,7 +18,7 @@ public:
 	};
 	~Transform() {};
 
-	DirectX::XMMATRIX GetWorldMatrix() {
+	DirectX::XMMATRIX GetLocalMatrix() {
 		DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(scale_.x, scale_.y, scale_.z);
 		DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationZ(rotation_.z) * DirectX::XMMatrixRotationX(rotation_.x) * DirectX::XMMatrixRotationY(rotation_.y);
 		DirectX::XMMATRIX transMat = DirectX::XMMatrixTranslation(postion_.x, postion_.y, postion_.z);

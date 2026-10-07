@@ -48,7 +48,7 @@ void Triangle::Update() {
 	Camera* camera = CameraManager::getCurentCamera();
 	if (camera == nullptr) return;
 
-	XMMATRIX world = transform_.GetWorldMatrix();
+	XMMATRIX world = transform_.GetLocalMatrix();
 	XMMATRIX view = camera->getMatrix();
 	XMMATRIX projection = camera->GetProjection();
 

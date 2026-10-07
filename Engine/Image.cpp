@@ -31,7 +31,7 @@ void Image::Update() {
 	Camera* camera = CameraManager::getCurentCamera();
 	if (camera == nullptr) return;
 
-	XMMATRIX world = transform_.GetWorldMatrix();
+	XMMATRIX world = transform_.GetLocalMatrix();
 	XMMATRIX view = XMMatrixIdentity();
 	XMMATRIX projection = XMMatrixOrthographicOffCenterLH(
 		0.0f, 1280.0f,

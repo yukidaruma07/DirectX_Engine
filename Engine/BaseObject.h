@@ -13,6 +13,8 @@ class Collider;
 class BaseObject {
 private:
 protected:
+    BaseObject* parentObject_;
+    std::vector<BaseObject*> childList_;
     std::vector<Collider*> colliderList;  // オブジェクトが持っているコライダー
     std::string name_;                          // オブジェクトの名前
     bool isDead_;                               // オブジェクトが死んでいるか
@@ -22,8 +24,10 @@ protected:
     // DirectX::XMFLOAT3 velocity_;                // オブジェクトのベクトル
     // DirectX::XMFLOAT3 rotation_;                // オブジェクトの回転
     // DirectX::XMFLOAT3 scale_;                   // オブジェクトの大きさ
+    DirectX::XMMATRIX worldMatrix_;
 public:
     Transform transform_;
+
 
     BaseObject(const std::string& name, const bool isDead = false) {
         name_ = name;
@@ -107,6 +111,12 @@ public:
     /// </summary>
     void SetShowImGUI(bool flag) { this->isShowImGUI_ = flag; }
 
+    /// <summary>
+    /// オブジェクトの親を取得する関数
+    /// </summary>
+    /// <returns></returns>
+    BaseObject* GetParent() const { return parentObject_; }
+
     DirectX::XMFLOAT3 GetPosition() const { return transform_.postion_; }
     void SetPosition(const DirectX::XMFLOAT3 position) { transform_.postion_ = position; }
     DirectX::XMFLOAT3 GetVelocity() const { return transform_.velocity_; }
@@ -116,5 +126,27 @@ public:
     DirectX::XMFLOAT3 GetScale() const { return transform_.scale_; }
     void SetScale(const DirectX::XMFLOAT3 scale) { transform_.scale_ = scale; }
 
+    DirectX::XMMATRIX GetWorldMatrix() const { return worldMatrix_; }
+    void SetWorldMatrix(const DirectX::XMMATRIX matrix) { worldMatrix_ = matrix; }
+
     std::vector<Collider*>& GetColiderList() { return colliderList; }
+
+    void AddChild(BaseObject* obj) {
+        childList_.push_back(obj);
+        obj->parentObject_ = this;
+    }
+
+    std::vector<BaseObject*>& GetChildList() { return childList_; }
+
+    void UpdateTransform() {
+        BaseObject* parent = GetParent();
+        if (parent != nullptr) {
+            DirectX::XMMATRIX parentMatrix = parent->GetWorldMatrix();
+            DirectX::XMMATRIX worldMatrix = parentMatrix * transform_.GetLocalMatrix(); // 親の行列とローカル行列を掛ける
+            SetWorldMatrix(worldMatrix);
+        }
+        else {
+            SetWorldMatrix(transform_.GetLocalMatrix());
+        }
+    }
 };

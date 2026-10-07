@@ -33,6 +33,12 @@ void BootScene::Init() {
 	ObjectManager::AddObject(new Triangle(color, vertexPos));
 	ObjectManager::AddObject(new Image("test.PNG", 64, 64));
 	auto obj = ObjectManager::AddObject(new FBX("Oden.fbx", {FBXPostionType::LEFTX_YUP_DEPTHZ}));
+	
+	auto obj1 = ObjectManager::AddObject(new FBX("enemy.fbx", { FBXPostionType::LEFTX_YUP_DEPTHZ }));
+	obj1->SetPosition({0.0f, 1.0f, 0.0f});
+
+	obj->AddChild(obj1);
+
 	auto col = new BoxCollider(obj, { 2.0f, 5.0f, 1.0f });
 	col->Init();
 	obj->GetColiderList().push_back(col);

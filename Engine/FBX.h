@@ -132,6 +132,20 @@ public:
 	void Draw() override;
 	void Release() override;
 
+	void DrawObjectInfoImGUI() override {
+		ImGui::Begin(fbxImporter_->GetFileName());
+		ImGui::SliderFloat("X", &transform_.postion_.x, -1280.0f, 1280.0f);
+		ImGui::SliderFloat("Y", &transform_.postion_.y, -1280.0f, 1280.0f);
+		ImGui::SliderFloat("Z", &transform_.postion_.z, -1280.0f, 1280.0f);
+		ImGui::SliderFloat("angleX", &transform_.rotation_.x, 0.0f, 90.0f);
+		ImGui::SliderFloat("angleY", &transform_.rotation_.y, 0.0f, 90.0f);
+		ImGui::SliderFloat("angleZ", &transform_.rotation_.z, 0.0f, 90.0f);
+		ImGui::SliderFloat("scaleX", &transform_.scale_.x, 0.0f, 10.0f);
+		ImGui::SliderFloat("scaleY", &transform_.scale_.y, 0.0f, 10.0f);
+		ImGui::SliderFloat("scaleZ", &transform_.scale_.z, 0.0f, 10.0f);
+		ImGui::End();
+	}
+
 	/// <summary>
 	/// ボーンを取得する関数
 	/// </summary>

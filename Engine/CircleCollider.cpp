@@ -28,6 +28,7 @@ void CircleCollider::Init()
 void CircleCollider::Update()
 {
 	SetPosition(parent_->GetPosition());
+	fbx_->UpdateTransform();
 	fbx_->Update();
 	fbx_->SetPosition(GetPosition());
 }

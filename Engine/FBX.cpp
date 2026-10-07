@@ -297,7 +297,8 @@ void FBX::InitSkeleton(fbxsdk::FbxMesh* mesh) {
 
 void FBX::Update() {
 	auto currentCamera = CameraManager::getCurentCamera();
-	XMMATRIX world = transform_.GetWorldMatrix();
+	// XMMATRIX world = transform_.GetLocalMatrix();
+	XMMATRIX world = GetWorldMatrix();
 	XMMATRIX view = currentCamera->getMatrix();
 	XMMATRIX projection = currentCamera->GetProjection();
 
@@ -466,7 +467,7 @@ bool FBX::Raycast(FBX* fbx, DirectX::XMFLOAT3 rayPos, DirectX::XMFLOAT3 rayDir, 
 		auto vertex1 = DirectX::XMLoadFloat3(&fbx->vertices_[v + 1].postion);
 		auto vertex2 = DirectX::XMLoadFloat3(&fbx->vertices_[v + 2].postion);
 
-		XMMATRIX worldMat = fbx->transform_.GetWorldMatrix();
+		XMMATRIX worldMat = fbx->transform_.GetLocalMatrix();
 		vertex0 = XMVector3TransformCoord(vertex0, worldMat);
 		vertex1 = XMVector3TransformCoord(vertex1, worldMat);
 		vertex2 = XMVector3TransformCoord(vertex2, worldMat);

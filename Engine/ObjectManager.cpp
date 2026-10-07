@@ -26,6 +26,21 @@ void ObjectManager::ClearObject() {
 
 void ObjectManager::UpdateManager() {
     for (int n = 0; n < objList.size(); n++) {
+        BaseObject* object = objList[n];
+        if (object == nullptr) return;
+        object->UpdateTransform();
+
+        auto& childList = object->GetChildList();
+        for (int i = 0; i < childList.size(); i++) {
+            BaseObject* child = childList[i];
+            if (child != nullptr) {
+                child->UpdateTransform();
+            }
+        }
+    }
+
+
+    for (int n = 0; n < objList.size(); n++) {
         auto obj = objList[n];
         if (obj == nullptr) continue;
         if (obj->IsDead()) {
@@ -44,6 +59,7 @@ void ObjectManager::UpdateManager() {
 }
 
 void ObjectManager::UpdateCollider() {
+
     for (int n = 0; n < objList.size(); n++) {
         for (int i = 1; i < objList.size(); i++) {
             auto obj1 = objList[n];
