@@ -1,100 +1,186 @@
 ﻿#include "ServerSocketManager.h"
-#include <string>
 #include <vector>
-#include <ctime>
-#include <assert.h>
 #include <winsock.h>
+#include <assert.h>
+#include <iostream>
+#include <string>
+#include <thread>
+#include <csignal>
 
 #pragma comment(lib, "Ws2_32.lib")
 
+/// <summary>
+/// サーバー側のソケットマネージャーです。
+/// </summary>
 namespace ServerSocketManager {
 
 	inline std::vector<SocketPlayer> socketPlayerList;
-	inline SOCKET listenSocket = {};
+	inline SOCKET serverSocket = {};
+	inline const int PORT = 10000;
 
 	void InitManager() {
 		int result = 0;
-		socketPlayerList.resize(2);
 
 		//WSADATAの参考：https://learn.microsoft.com/ja-jp/windows/win32/api/winsock2/ns-winsock2-wsadata
 		WSADATA wsa = {};
 		result = WSAStartup(MAKEWORD(2, 2), &wsa); //WinSockDLLの使用を開始する関数
 		assert(result == 0 && "WSAのセットアップに失敗しました");
 
-		listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if (listenSocket == INVALID_SOCKET) {
-			assert(listenSocket != INVALID_SOCKET);
+		///
+		/// ソケットを作成
+		/// 
+		serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (serverSocket == INVALID_SOCKET) {
+			assert(serverSocket != INVALID_SOCKET);
 			ReleaseApp();
+			return;
 		}
-		socketPlayerList[0].socket = listenSocket;
-		socketPlayerList[0].id = 0;
-		socketPlayerList[0].connected = true;
 
 		SOCKADDR_IN addr = {};
 		addr.sin_family = AF_INET;
-		addr.sin_port = htons(10000);
+		addr.sin_port = htons(PORT);
 		addr.sin_addr.s_addr = INADDR_ANY;
 
-		result = bind(listenSocket, reinterpret_cast<SOCKADDR*>(&addr), sizeof(addr));
+		///
+		/// ソケットにIPを結びつける（=バインド）
+		/// 
+		result = bind(serverSocket, reinterpret_cast<SOCKADDR*>(&addr), sizeof(addr));
 		if (result == SOCKET_ERROR) {
 			assert(result != SOCKET_ERROR && "バインドに失敗しました");
 			ReleaseApp();
+			return;
 		}
 
-		result = listen(listenSocket, SOMAXCONN); //接続待ち状態にする
+		///
+		/// 接続待ちにする（=リッスン）
+		/// 
+		result = listen(serverSocket, SOMAXCONN);
 		if (result == SOCKET_ERROR) {
 			assert(result != SOCKET_ERROR && "listenに失敗しました");
 			ReleaseApp();
+			return;
 		}
 
-		std::cout << "プレイヤーを待機しています..\n";
-		for (int i = 1; i < 2; i++) {
+		u_long nonBlockFlag = 1; //ノンブロッキングのフラグ
+		if (ioctlsocket(serverSocket, FIONBIO, &nonBlockFlag) == SOCKET_ERROR) {
+			std::cerr << "エラー: " << WSAGetLastError() << '\n';
+			ReleaseApp();
+			return;
+		}
+
+		///
+		/// while(true)によりブロックしちゃうため、別のスレッドで実行する
+		/// 
+		std::thread(RunMainLoop).detach();
+	}
+
+	void RunMainLoop() {
+		///
+		/// クライアントから受信する
+		/// 
+		while (true) {
 			SOCKADDR_IN clientAddr = {};
 			int size = sizeof(clientAddr);
-			SOCKET clientSocket = accept(listenSocket, reinterpret_cast<SOCKADDR*>(&clientAddr), &size);
+			SOCKET clientSocket = accept(serverSocket, reinterpret_cast<SOCKADDR*>(&clientAddr), &size);
 			if (clientSocket == INVALID_SOCKET) {
-				assert(clientSocket != INVALID_SOCKET);
-				ReleaseApp();
+				int error = WSAGetLastError();
+				if (error != WSAEWOULDBLOCK) {
+					std::cerr << "エラー: " << error << std::endl;
+				}
 			}
-			u_long flag = 1;
-			ioctlsocket(clientSocket, FIONBIO, &flag);
-			socketPlayerList[i].socket = clientSocket;
-			socketPlayerList[i].id = i + 1;
-			socketPlayerList[i].connected = true;
-			sendText(clientSocket, std::string("ようこそ" + std::to_string(socketPlayerList[i].id) + "さん。\n"));
-			std::cout << "プレイヤー" << socketPlayerList[i].id << "さんがログインしました\n";
-		}
-
-		while (true) {
-
-			for (auto& player : socketPlayerList) {
-				if (!player.connected) {
+			else {
+				u_long nonBlockFlag = 1; //ノンブロッキングのフラグ
+				if (ioctlsocket(clientSocket, FIONBIO, &nonBlockFlag) == SOCKET_ERROR) {
+					std::cerr << "エラー: " << WSAGetLastError() << std::endl;
+					closesocket(clientSocket);
 					continue;
 				}
 
+				SocketPlayer player = {};
+				player.socket = clientSocket;
+				player.id = socketPlayerList.size() + 1;
+				player.connected = true;
+				player.logined = false;
+				socketPlayerList.push_back(player);
+				std::cout << "誰かがログインしています" << std::endl;
+			}
+
+			///
+			/// サーバー側のプレイヤーリスト
+			/// 
+			for (auto& player : socketPlayerList) {
+				if (!player.connected) continue;	// プレイヤーが接続されていない場合は、飛ばす
+
+				///
+				/// データを受け取る（recv）。
+				/// bufに受け取ったデータをポインタで入れる。
+				/// recvは受け取れたバイト数を返す。
+				/// 
 				char buf[256] = {};
-				result = recv(player.socket, buf, sizeof(buf) - 1, 0);
-				if (result == SOCKET_ERROR) {
+				int result = recv(player.socket, buf, sizeof(buf) - 1, 0);
+
+				///
+				/// 受け取ったバイト数が1以上。
+				/// 何も受け取れなかった場合、-1（マクロ：SOCKET_ERROR）を返す。
+				/// 
+				if (result > 0) {
+					buf[result] = '\0';
+					player.rawBuffer.append(buf, result);
+
+					size_t pos = 0;
+					while ((pos = player.rawBuffer.find('\n')) != std::string::npos) {
+						std::string line = player.rawBuffer.substr(0, pos);	// 受け取ったデータ
+						player.rawBuffer.erase(0, pos + 1);
+
+						if (line.empty()) continue;
+
+						std::string type = ""; // 接続の種類
+
+						if (type == "MeLogin" && !player.logined) {	// 新しいログインで、まだサーバーログインしていない
+							player.name = "";	// 受け取ったデータから、名前を代入
+							player.logined = true;
+
+							///
+							/// 新しくログインした人に、既にいる人のデータを返す処理
+							/// 
+							for (const auto& other : socketPlayerList) {
+								if (&other == &player || !other.connected || !other.logined) continue;
+								std::string type = "NewLogin";
+								std::string name = other.name;
+								std::string data = std::string("") + std::string("\n");	// 相手に送るデータ
+								sendText(player.socket, data);
+							}
+
+							/// 
+							/// 全員（※既にログインしている人）に、新しくログインした人のデータを送る
+							/// 
+							std::string data = "";	// NewLogin と nameを返す
+							broadcast(socketPlayerList, data + "\n");
+							std::cout << player.name << "さんがログインしました\n";
+						}
+						if (type == "MessageSend") {
+							std::string message = "";
+							std::cout << "プレイヤー（メッセージ送信）:" << player.name << ": " << message << "\n";
+						}
+						else if (type == "TransformMove") {
+							broadcast(socketPlayerList, std::string(line) + "\n");
+						}
+						else {
+							std::cout << "プレイヤー（その他）:" << player.name << ": " << line << "\n";
+						}
+					}
+				}
+				else if (result == SOCKET_ERROR) {
 					int error = WSAGetLastError();
 					if (error == WSAECONNRESET) {
-						std::cout << "プレイヤー" << player.id << "が切断されました。";
+						std::cout << "プレイヤー" << player.name << "が切断されました。";
 						player.connected = false;
 						broadcast(socketPlayerList, ("プレイヤー" + std::to_string(player.id) + "は切断されました。"));
 					}
 				}
-				else if (result > 0) {
-					buf[result] = '\0';
-
-					std::cout << "プレイヤー" << player.id << ": " << buf << "\n";
-					broadcast(socketPlayerList, "プレイヤー" + std::to_string(player.id) + ": " + std::string(buf));
-				}
-
 			}
-
 			Sleep(10);
 		}
-
-		ReleaseApp();
 	}
 
 	bool sendText(const SOCKET& socket, const std::string& text) {
@@ -118,7 +204,7 @@ namespace ServerSocketManager {
 			}
 		}
 
-		closesocket(listenSocket);
+		closesocket(serverSocket);
 		WSACleanup();
 	}
 }

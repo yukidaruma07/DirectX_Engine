@@ -10,6 +10,9 @@ struct SocketPlayer {
 	SOCKET socket = INVALID_SOCKET;
 	int id = -1;
 	bool connected = false;
+	bool logined = false;
+	std::string name = "";
+	std::string rawBuffer = "";
 };
 
 /// <summary>
@@ -18,6 +21,8 @@ struct SocketPlayer {
 namespace ServerSocketManager {
 
 	void InitManager();
+	void RunMainLoop();
+
 	bool sendText(const SOCKET& socket, const std::string& text);
 	void broadcast(const std::vector<SocketPlayer>& players, const std::string& text);
 
